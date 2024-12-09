@@ -4,8 +4,10 @@ import React from "react";
 function RightSideDashboard() {
 
   return (
-    <div>
-      Home
+    <div className="">
+   
+      <h1>Hello</h1>
+
     </div>
   )
 }

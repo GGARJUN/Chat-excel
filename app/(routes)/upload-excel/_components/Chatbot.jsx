@@ -8,7 +8,8 @@ const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-    const [loadingImageButton, setLoadingImageButton] = useState(false); // Add state for button loading
+    const [loadingImageButton, setLoadingImageButton] = useState(false);
+    const [isRotating, setIsRotating] = useState(false); // State for RotateCw animation
 
     const apiKey = process.env.NEXT_PUBLIC_OPEN_API_KEY;
 
@@ -64,7 +65,7 @@ const Chatbot = () => {
 
         try {
             setIsGeneratingImage(true);
-            setLoadingImageButton(true); // Set loading state when generating image
+            setLoadingImageButton(true);
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -87,7 +88,7 @@ const Chatbot = () => {
             console.error("Error generating image:", error);
         } finally {
             setIsGeneratingImage(false);
-            setLoadingImageButton(false); // Reset the loading state after generating the image
+            setLoadingImageButton(false);
         }
     };
 
@@ -96,6 +97,17 @@ const Chatbot = () => {
         a.href = url;
         a.download = "generated-image.png";
         a.click();
+    };
+
+    const handleRotate = () => {
+        setIsRotating(true);
+        setTimeout(() => {
+            setIsRotating(false);
+        }, 1000);
+    };
+
+    const handleClearChat = () => {
+        setMessages([]);
     };
 
     const placeholders = [
@@ -110,38 +122,44 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
 
     const TopIcon = [
         {
-            icon: <Send />,
+            icon: <Send />, action: handleSend
         },
         {
-            icon: <TextCursor />,
+            icon: <TextCursor />
         },
         {
-            icon: <ArrowRightFromLine />,
+            icon: <ArrowRightFromLine />
         },
         {
-            icon: <RotateCw />,
+            icon: <RotateCw />, action: handleRotate
         },
         {
-            icon: <Trash />,
+            icon: <Trash />, action: handleClearChat
         },
     ];
 
     return (
-        <div className="w-full h-screen px-2 mt-2">
+        <div className="w-full  px-2 mt-3">
             <div className="mb-4">
                 <div className="flex justify-between items-center w-full">
                     <h1 className="font-medium text-xl mb-2">Chat</h1>
                     <div className="flex justify-center items-center gap-1 ">
                         {TopIcon.map((item, index) => (
-                            <div key={index} className="scale-75 hover:scale-90">{item.icon}</div>
+                            <div
+                                key={index}
+                                className="scale-75 hover:scale-90"
+                                onClick={item.action}
+                            >
+                                {item.icon}
+                            </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="border-2 h-[520px] rounded-md p-2 bg-gray-50 overflow-y-scroll">
+                <div className="border-2 h-[510px] rounded-md p-2 bg-gray-50 overflow-y-scroll">
                     <TextGenerateEffect words={words} />
                     {messages.map((msg, idx) => (
-                        <div key={idx} className={`mb-4 ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                        <div key={idx} className={`my-3 ${msg.role === "user" ? "text-right" : "text-left"}`}>
                             {msg.image ? (
                                 <div className="flex justify-start relative">
                                     <img
@@ -157,7 +175,7 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
                                     </button>
                                 </div>
                             ) : (
-                                <span className={msg.role === "user" ? "font-normal text-sm bg-blue-200 p-2 rounded-lg" : "font-normal  p-2 flex text-sm"}>
+                                <span className={msg.role === "user" ? "font-normal text-sm bg-blue-200 p-2 rounded-lg" : "font-normal p-2 flex text-sm"}>
                                     {msg.content}
                                 </span>
                             )}
@@ -171,7 +189,7 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
                 </div>
             </div>
 
-            <div className="flex w- gap-2">
+            <div className="flex gap-2 ">
                 <PlaceholdersAndVanishInput
                     placeholders={placeholders}
                     type="text"
@@ -182,7 +200,7 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
                 <button
                     onClick={handleGenerateImage}
                     className="bg-blue-600 text-white px-3 scale-75 hover:scale-90 ease-in-out transition-all rounded-full hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
-                    disabled={loadingImageButton} // Disable the button while loading
+                    disabled={loadingImageButton}
                 >
                     {loadingImageButton ? (
                         <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-blue-500"></div>

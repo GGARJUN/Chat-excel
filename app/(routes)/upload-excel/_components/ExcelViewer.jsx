@@ -104,7 +104,7 @@ const ExcelViewer = ({ fileData, fileName }) => {
         </div>
       )} */}
       {isLoading ? (
-        <div className="flex justify-center items-center h-[490px]">
+        <div className="flex justify-center items-center ">
           <Loader2 className="animate-spin text-blue-500" size={40} />
         </div>
       ) : data.length > 0 ? (
@@ -118,7 +118,7 @@ const ExcelViewer = ({ fileData, fileName }) => {
                 {columns.map((col, index) => (
                   <th
                     key={index}
-                    className="text-left p-3 border border-gray-300 font-bold text-sm"
+                    className="text-left  p-3 border border-gray-300 font-bold text-sm"
                   >
                     {col || "Column"}
                   </th>
@@ -129,13 +129,13 @@ const ExcelViewer = ({ fileData, fileName }) => {
               {data.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={`hover:bg-blue-50 ${rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  className={`hover:bg-blue-50 ${rowIndex % 2 === 0 ? "bg-gray-50 " : "bg-white"
                     }`}
                 >
                   {row.map((cell, cellIndex) => (
                     <td
                       key={cellIndex}
-                      className="p-3 border border-gray-300 text-sm text-gray-700"
+                      className="p-3 border border-gray-300 text-sm  text-gray-700"
                     >
                       {cell instanceof Date ? format(cell, "yyyy-MM-dd ") : cell || ""}
                     </td>
