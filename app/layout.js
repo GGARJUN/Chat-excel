@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Outfit({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "CareerGaidence AI",
+  title: "Chat Excel File",
  
 };
 

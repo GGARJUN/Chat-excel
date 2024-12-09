@@ -1,20 +1,18 @@
-
-"use client"
+"use client";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { ArrowRightFromLine, Download, RotateCw, Send, Sparkles, TextCursor, Trash } from "lucide-react";
 import React, { useState } from "react";
 
-
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+    const [loadingImageButton, setLoadingImageButton] = useState(false); // Add state for button loading
 
-    const apiKey = process.env.OPEN_API; // Add your API key securely in .env file
+    const apiKey = process.env.NEXT_PUBLIC_OPEN_API_KEY;
 
     const handleSend = async () => {
-
         if (!input.trim()) return;
 
         const url = "https://api.openai.com/v1/chat/completions";
@@ -66,6 +64,7 @@ const Chatbot = () => {
 
         try {
             setIsGeneratingImage(true);
+            setLoadingImageButton(true); // Set loading state when generating image
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -88,6 +87,7 @@ const Chatbot = () => {
             console.error("Error generating image:", error);
         } finally {
             setIsGeneratingImage(false);
+            setLoadingImageButton(false); // Reset the loading state after generating the image
         }
     };
 
@@ -108,7 +108,6 @@ const Chatbot = () => {
     const words = `Hello! 👋
 I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have questions, need advice, or just want to chat, I'm here to help! 😊`;
 
-
     const TopIcon = [
         {
             icon: <Send />,
@@ -125,9 +124,7 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
         {
             icon: <Trash />,
         },
-    ]
-
-
+    ];
 
     return (
         <div className="w-full h-screen px-2 mt-2">
@@ -175,28 +172,23 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
             </div>
 
             <div className="flex w- gap-2">
-
                 <PlaceholdersAndVanishInput
                     placeholders={placeholders}
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onSubmit={handleSend}
-
                 />
-
-
-                {/* <button
-                    onClick={handleSend}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
-                >
-                    Send
-                </button> */}
                 <button
                     onClick={handleGenerateImage}
-                    className="bg-blue-600 text-white px-3 scale-75 hover:scale-90 ease-in-out transition-all  rounded-full hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
+                    className="bg-blue-600 text-white px-3 scale-75 hover:scale-90 ease-in-out transition-all rounded-full hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
+                    disabled={loadingImageButton} // Disable the button while loading
                 >
-                    <Sparkles />
+                    {loadingImageButton ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-blue-500"></div>
+                    ) : (
+                        <Sparkles />
+                    )}
                 </button>
             </div>
         </div>
@@ -204,4 +196,3 @@ I'm ChatGPT, your AI assistant. How can I assist you today? Whether you have que
 };
 
 export default Chatbot;
-

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ExcelJS from "exceljs";
 import { Loader2, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import { format } from "date-fns";
 
 const ExcelViewer = ({ fileData, fileName }) => {
   const [data, setData] = useState([]);
@@ -82,7 +83,7 @@ const ExcelViewer = ({ fileData, fileName }) => {
           </button>
         </div>
       </div>
-      {sheetNames.length > 0 && (
+      {/* {sheetNames.length > 0 && (
         <div className="flex items-center gap-4 my-2">
           <span className="font-semibold text-gray-600">Sheets:</span>
           <ul className="flex gap-2">
@@ -101,7 +102,7 @@ const ExcelViewer = ({ fileData, fileName }) => {
             ))}
           </ul>
         </div>
-      )}
+      )} */}
       {isLoading ? (
         <div className="flex justify-center items-center h-[490px]">
           <Loader2 className="animate-spin text-blue-500" size={40} />
@@ -128,16 +129,15 @@ const ExcelViewer = ({ fileData, fileName }) => {
               {data.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={`hover:bg-blue-50 ${
-                    rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
+                  className={`hover:bg-blue-50 ${rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    }`}
                 >
                   {row.map((cell, cellIndex) => (
                     <td
                       key={cellIndex}
                       className="p-3 border border-gray-300 text-sm text-gray-700"
                     >
-                      {cell || ""}
+                      {cell instanceof Date ? format(cell, "yyyy-MM-dd ") : cell || ""}
                     </td>
                   ))}
                 </tr>

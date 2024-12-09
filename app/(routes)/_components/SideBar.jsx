@@ -1,6 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button';
-import { FolderPlus, Loader, Plus } from 'lucide-react';
+import { FolderPlus,  Loader2, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -42,7 +42,7 @@ function SideNavBar({ onFileUpload }) {
                             disabled={Loading} // Disable button while loading
                         >
                             {Loading ? (
-                                <Loader /> // Show loading spinner instead of Plus icon
+                                <Loader2 /> // Show loading spinner instead of Plus icon
                             ) : (
                                 <Plus />
                             )}
