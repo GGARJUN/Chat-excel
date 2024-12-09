@@ -1,48 +1,63 @@
 import React, { useEffect, useState } from "react";
-import * as XLSX from "xlsx";
-import { Loader2, ZoomIn, ZoomOut, Resize, RotateCw } from "lucide-react"; // Import icons
+import ExcelJS from "exceljs";
+import { Loader2, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 
 const ExcelViewer = ({ fileData, fileName }) => {
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [sheetNames, setSheetNames] = useState([]); // List of sheet names
-  const [activeSheet, setActiveSheet] = useState(""); // Currently active sheet
+  const [sheetNames, setSheetNames] = useState([]);
+  const [activeSheet, setActiveSheet] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [zoomLevel, setZoomLevel] = useState(100); // Zoom level in percentage
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   useEffect(() => {
     if (fileData) {
-      setTimeout(() => {
-        const workbook = XLSX.read(fileData, { type: "binary" });
+      setTimeout(async () => {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(fileData);
 
-        // Get all sheet names
-        setSheetNames(workbook.SheetNames);
+        const sheetNames = workbook.worksheets.map((sheet) => sheet.name);
+        setSheetNames(sheetNames);
 
-        // Default to the first sheet
-        const initialSheetName = workbook.SheetNames[0];
-        loadSheet(workbook, initialSheetName);
-        setActiveSheet(initialSheetName);
-      }, 2000); // Simulate a delay
+        const initialSheet = workbook.worksheets[0];
+        setActiveSheet(initialSheet.name);
+        loadSheet(initialSheet);
+      }, 2000);
     }
   }, [fileData]);
 
-  const loadSheet = (workbook, sheetName) => {
-    const sheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    const [headerRow, ...rows] = jsonData;
+  const loadSheet = (sheet) => {
+    const rows = [];
+    const columns = [];
 
-    setColumns(headerRow || []);
+    sheet.eachRow((row, rowIndex) => {
+      if (rowIndex === 1) {
+        columns.push(...row.values.slice(1));
+      } else {
+        rows.push(row.values.slice(1));
+      }
+    });
+
+    setColumns(columns || []);
     setData(rows || []);
     setIsLoading(false);
   };
 
   const handleSheetChange = (sheetName) => {
-    setIsLoading(true); // Show loader during sheet switching
-    setTimeout(() => {
-      const workbook = XLSX.read(fileData, { type: "binary" });
-      loadSheet(workbook, sheetName);
-      setActiveSheet(sheetName);
-    }, 500); // Simulate a small delay for switching
+    setIsLoading(true);
+    setTimeout(async () => {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(fileData);
+
+      const selectedSheet = workbook.worksheets.find(
+        (sheet) => sheet.name === sheetName
+      );
+
+      if (selectedSheet) {
+        loadSheet(selectedSheet);
+        setActiveSheet(sheetName);
+      }
+    }, 500);
   };
 
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 10, 200));
@@ -51,37 +66,22 @@ const ExcelViewer = ({ fileData, fileName }) => {
 
   return (
     <div className="w-full p-2">
-      <div className=" flex justify-between items-center">
+      <div className="flex justify-between items-center">
         <h2 className="font-bold text-lg text-gray-700">
           <span className="text-blue-600">{fileName}</span>
         </h2>
-
-
-        {/* Zoom Controls */}
         <div className="flex justify-end items-center rounded-md border-2">
-          <button
-            onClick={handleZoomOut}
-            className=" rounded p-1  hover:bg-gray-200"
-          >
+          <button onClick={handleZoomOut} className="rounded p-1 hover:bg-gray-200">
             <ZoomOut className="text-gray-600 scale-75" size={20} />
           </button>
-          <button
-            onClick={handleResetZoom}
-            className=" rounded p-1 hover:bg-gray-200"
-          >
+          <button onClick={handleResetZoom} className="rounded p-1 hover:bg-gray-200">
             <RotateCw className="text-gray-600 scale-75" size={20} />
           </button>
-          <button
-            onClick={handleZoomIn}
-            className=" rounded p-1 hover:bg-gray-200"
-          >
+          <button onClick={handleZoomIn} className="rounded p-1 hover:bg-gray-200">
             <ZoomIn className="text-gray-600 scale-75" size={20} />
           </button>
         </div>
-
       </div>
-
-      {/* Sheet Selection
       {sheetNames.length > 0 && (
         <div className="flex items-center gap-4 my-2">
           <span className="font-semibold text-gray-600">Sheets:</span>
@@ -101,9 +101,7 @@ const ExcelViewer = ({ fileData, fileName }) => {
             ))}
           </ul>
         </div>
-      )} */}
-
-
+      )}
       {isLoading ? (
         <div className="flex justify-center items-center h-[490px]">
           <Loader2 className="animate-spin text-blue-500" size={40} />
@@ -130,8 +128,9 @@ const ExcelViewer = ({ fileData, fileName }) => {
               {data.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={`hover:bg-blue-50 ${rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    }`}
+                  className={`hover:bg-blue-50 ${
+                    rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  }`}
                 >
                   {row.map((cell, cellIndex) => (
                     <td

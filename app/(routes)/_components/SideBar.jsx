@@ -1,6 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button';
-import { FolderPlus, Plus } from 'lucide-react';
+import { FolderPlus, Loader, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,24 +15,15 @@ import {
 } from "@/components/ui/select"
 
 function SideNavBar({ onFileUpload }) {
-    const [isLoading, setIsLoading] = useState(false);
+    const [Loading, setLoading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]); // State to hold the list of file names
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            onFileUpload(file);
-            setIsLoading(true);
-
-            // Add the uploaded file name to the list
-            setUploadedFiles(prevFiles => [...prevFiles, file.name]);
-
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 1000);
-        } else {
-            alert("Please select a file to upload.");
-        }
+    const handleClick = () => {
+        setLoading(true);
+        // Simulate loading for 2 seconds (you can replace it with your actual action)
+        setTimeout(() => {
+            setLoading(false);
+        }, 2000);
     };
 
     return (
@@ -45,12 +36,19 @@ function SideNavBar({ onFileUpload }) {
                 <div className='mt-8'>
                     {/* New Chat button */}
                     <Link href={"/upload-excel"}>
-                        <Button className="w-full mb-4 flex items-center gap-3 h-10">
-                            <Plus />
-                            <h1>New Chat</h1>
+                        <Button
+                            className="w-full mb-4 flex items-center gap-3 h-10"
+                            onClick={handleClick}
+                            disabled={Loading} // Disable button while loading
+                        >
+                            {Loading ? (
+                                <Loader /> // Show loading spinner instead of Plus icon
+                            ) : (
+                                <Plus />
+                            )}
+                            <h1>{Loading ? "" : "New Chat"}</h1>
                         </Button>
                     </Link>
-
                     {/* New Folder button */}
                     <Button className="w-full mb-4 flex items-center gap-3 h-10">
                         <FolderPlus />
